@@ -1,25 +1,18 @@
+import model.CartItem;
+import model.Customer;
+import model.Product;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
 public class HITSHOP {
-    static ArrayList<String> names = new ArrayList<>();
-    static ArrayList<Double> prices = new ArrayList<>();
-    static ArrayList<Integer> quantities = new ArrayList();
+    private static final Customer currentCustomer = new Customer("C01", "Linh Nguyễn", "0900000001");
+    private static final List<CartItem> cart = new ArrayList<>();
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
-//        String tenHang = sc.nextLine();
-//        double donGia = Double.parseDouble(sc.nextLine());
-//        int soLuong = Integer.parseInt(sc.nextLine());
-//        double thanhTien = donGia * (double)soLuong;
-//        System.out.println("Ten hang: " + tenHang);
-//        System.out.println("Don Gia: " + donGia);
-//        System.out.println("So luong: " + soLuong);
-//        System.out.println("Thanh Tien: " + thanhTien);
-//        System.out.println();
-//        double VAT_RATE = 0.1;
-//        double SHIPPING_FEE = 20000.0F;
-//        thanhTien = thanhTien + 0.1 * thanhTien + (double)20000.0F;
-//        System.out.println("Thanh Tien: " + thanhTien);
+        Product p01 = new Product("P01", "Áo thun", 150000, 20);
+        Product p02 = new Product("P02", "Bình nước", 50000, 10);
         int choice;
         do {
             printMenu();
@@ -27,11 +20,30 @@ public class HITSHOP {
             choice=Integer.parseInt(sc.nextLine());
             switch (choice) {
                 case 1:
-                    addItem(sc);
+                    System.out.println("Danh sach san pham:");
+                    System.out.println("P01 - Ao thun - 150000");
+                    System.out.println("P02 - Binh nuoc - 50000");
+                    System.out.print("Nhap ma san pham: ");
+                    String id = sc.nextLine();
+
+                    System.out.print("Nhap so luong: ");
+                    int quantity = sc.nextInt();
+                    sc.nextLine();
+                    if (id.equals("P01")) {
+                        addItem(p01, quantity);
+                        System.out.println("ADD thanh cong");
+                    } else if (id.equals("P02")) {
+                        addItem(p01, quantity);
+                        System.out.println("ADD thanh co11ng");
+                    } else {
+                        System.out.println("Khong tim thay");
+                    }
                     break;
                 case 2:
-                    removeItem(sc);
-                    break;
+
+                    System.out.print("Nhap so thu tu mat hang can xoa: ");
+                    int number=Integer.parseInt(sc.nextLine());
+                    removeItem(number - 1);
                 case 3:
                     printItem();
                     break;
@@ -53,53 +65,33 @@ public class HITSHOP {
             System.out.println("4.Xem tổng tiền");
             System.out.println("0.Thoát");
         }
-        static void addItem(Scanner sc){
-            System.out.println("Nhập tên hàng "); String name= sc.nextLine();
-            System.out.println("Nhập giá bán: "); Double price=Double.parseDouble(sc.nextLine());
-            System.out.println("Nhập số nượng: "); Integer quantity=Integer.parseInt(sc.nextLine());
-            names.add(name);
-            prices.add(price);
-            quantities.add(quantity);
-            printItem();
+        static void addItem(Product product, int quantity){
+            CartItem item = new CartItem (product, quantity);
+            cart.add(item);
         }
-        static void removeItem(Scanner sc){
-            System.out.println("Nhập số thứ tự hàng muốn xóa ");
-            int index=Integer.parseInt(sc.nextLine());
-            if (index <=0 || index >names.size()){
-                System.out.println("lựa chọn không hợp lệ ");
+        static void removeItem(int index){
+            if (index <0 && index >cart.size()){
                 return;
             }
-            names.remove(index-1);
-            prices.remove(index-1);
-            quantities.remove(index-1);
-            printItem();
+            cart.remove(index);
         }
         static void printItem(){
-            if (names.isEmpty()){
-                System.out.println("Danh sách rỗng");
+            System.out.println("THONG TIN");
+            System.out.println("Khach hang hien tai: " + currentCustomer);
+            if (cart.isEmpty()){
+                System.out.println("Gio hang rong");
                 return;
             }
-            System.out.println("GIỎ HÀNG");
-            for(int i=0;i< names.size();i++){
-                double moneyTotal= prices.get(i) * quantities.get(i);
-                System.out.printf("%d . %s | ĐG: %.1f | SL: %d | Thành tiền: %.1f%n", i + 1, names.get(i), prices.get(i), quantities.get(i), moneyTotal);
+            for(int i=0;i< cart.size();i++){
+                System.out.println((i + 1) + ". " +cart.get(i).getProduct().getId() + " | " +cart.get(i).getProduct().getName() + " | "
+                        +cart.get(i).getProduct().getPrice() +" | SL: " +cart.get(i).getQuantity() + " | Thành tiền: "+cart.get(i).getTotal());
             }
-        }
+            }
         static double calculateTotal(){
-            double total=0;
-            if (names.isEmpty()){
-                total=0;
+            double total = 0;
+            for(int i = 0; i < cart.size(); i++){
+                total += cart.get(i).getTotal();
             }
-            for (int i=0 ;i< names.size();i++){
-                total+= prices.get(i) * quantities.get(i);
-            }
-            double VAT_RATE = 0.1 *total;
-            double SHIPPING_FEE = 20000;
-            double sum = total + VAT_RATE + SHIPPING_FEE;
-            System.out.printf("Tiền hàng: %.1f\n", total);
-            System.out.printf("VAT (10%%): %.1f\n", VAT_RATE);
-            System.out.printf("Phí vận chuyển: %.1f\n",SHIPPING_FEE);
-            System.out.printf("Tong thanh toan: %.1f\n",sum);
-            return sum;
+            return total;
         }
     }
